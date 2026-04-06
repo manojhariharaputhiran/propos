@@ -1,0 +1,42 @@
+version: "3.9"
+
+# Production overrides - use with: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+# Note: In production, Postgres → Supabase, Redis → Upstash, Qdrant → Qdrant Cloud
+# Only backend runs in Docker for prod; frontend deploys to Vercel
+
+services:
+  postgres:
+    # Disabled in prod — use Supabase
+    profiles: ["local-only"]
+
+  redis:
+    # Disabled in prod — use Upstash
+    profiles: ["local-only"]
+
+  qdrant:
+    # Disabled in prod — use Qdrant Cloud
+    profiles: ["local-only"]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      QDRANT_URL: ${QDRANT_URL}
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
+      REDIS_URL: ${REDIS_URL}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      MICROSOFT_CLIENT_ID: ${MICROSOFT_CLIENT_ID}
+      MICROSOFT_CLIENT_SECRET: ${MICROSOFT_CLIENT_SECRET}
+      JWT_SECRET: ${JWT_SECRET}
+      ENVIRONMENT: production
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    restart: always
+    volumes: []
+
+  frontend:
+    # Deployed to Vercel — not run in Docker for prod
+    profiles: ["local-only"]

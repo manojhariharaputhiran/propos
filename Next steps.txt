@@ -1,0 +1,75 @@
+  ---
+  1. Supabase — Postgres
+
+  1. supabase.com → New project → note your password
+  2. Go to SQL Editor → paste and run your init migration:
+
+  Read 1 file (ctrl+o to expand)
+
+● Run init.sql first, then seed.sql in Supabase SQL Editor (both files are in backend/migrations/).
+
+  3. Go to Project Settings → Database → Connection string → URI — copy the one that starts postgresql://postgres:... (use port 5432,
+   not 6543)
+
+  ---
+  2. Upstash — Redis
+
+  1. upstash.com → Create database → choose region closest to your Render deployment
+  2. Copy the REDIS_URL (starts redis://default:...)
+
+  ---
+  3. Render — FastAPI backend
+
+  1. render.com → New → Web Service
+  2. Connect your GitHub repo → Root Directory: backend
+  3. Runtime: Docker (it'll use your existing Dockerfile)
+  4. Instance Type: Free
+  5. Add environment variables:
+  DATABASE_URL      → postgresql://postgres:[pass]@db.[ref].supabase.co:5432/postgres
+  REDIS_URL         → (from Upstash)
+  JWT_SECRET        → (run: openssl rand -hex 32)
+  ENVIRONMENT       → production
+  ANTHROPIC_API_KEY → sk-ant-... (optional — mock mode works without it)
+  ALLOWED_ORIGINS   → https://your-app.vercel.app  (fill in after Vercel deploy)
+  6. Deploy — note your Render URL e.g. https://propos-api.onrender.com
+
+  ---
+  4. Vercel — Next.js frontend
+
+  1. vercel.com → New Project → import your repo → Root Directory: frontend
+  2. Environment variables:
+  NEXTAUTH_URL          → https://your-app.vercel.app
+  NEXTAUTH_SECRET       → (run: openssl rand -hex 32)
+  NEXT_PUBLIC_API_URL   → https://propos-api.onrender.com
+  BACKEND_URL           → https://propos-api.onrender.com
+  JWT_SECRET            → (same value as Render)
+  3. Deploy — copy your Vercel URL
+  4. Go back to Render → update ALLOWED_ORIGINS with your Vercel URL → redeploy
+
+  ---
+  Before you push — make sure .env isn't committed:
+
+● Bash(cd "C:/Users/ManojHariharaputhira/Documents/Experiments/RFP Automation" && git status 2>/dev/null | head -5 || echo "Not a git
+       repo yet")
+  ⎿  On branch master
+
+     No commits yet
+     … +2 lines (ctrl+o to expand)
+  ⎿  Shell cwd was reset to C:\WINDOWS\system32
+
+● Bash(cd "C:/Users/ManojHariharaputhira/Documents/Experiments/RFP Automation" && git status --short 2>/dev/null | grep -E "\.env" |
+      head -10)
+  ⎿  A  "../Skills/Claude Code Skills/Claude Code Skills/.env"
+     A  ../global-ad-brain/.env.example
+  ⎿  Shell cwd was reset to C:\WINDOWS\system32
+
+● No .env from this project in the commit. Good. Now push:
+
+  cd "C:/Users/ManojHariharaputhira/Documents/Experiments/RFP Automation"
+  git add .
+  git commit -m "Initial commit"
+  git remote add origin https://github.com/YOUR_USERNAME/propos.git
+  git push -u origin master
+
+  Once pushed, Vercel and Render both auto-deploy on every push going forward. The whole thing should be live in about 10 minutes.
+  Let me know when you hit the Supabase step — the connection string format sometimes trips people up.
