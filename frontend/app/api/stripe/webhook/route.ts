@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Disable body parsing — Stripe requires the raw body for signature verification
-export const config = { api: { bodyParser: false } };
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
