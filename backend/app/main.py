@@ -123,19 +123,18 @@ async def microsoft_callback(code: str, redirect_uri: str = "http://localhost:30
         return JSONResponse(status_code=400, content={"detail": str(e)})
 
 
-# ── Dev convenience: get a token without OAuth ────────────────────────────────
-if settings.environment == "development":
-    @app.get(f"{API_PREFIX}/auth/dev-token")
-    async def dev_token():
-        """Return a dev JWT for testing without OAuth. Only available in development."""
-        from app.models.database import async_session_maker
-        from app.core.deps import _get_or_create_demo_user
-        from app.core.deps import create_access_token
+# ── Dev convenience: get a token for the seeded demo user ─────────────────────
+@app.get(f"{API_PREFIX}/auth/dev-token")
+async def dev_token():
+    """Return a JWT for the seeded demo user. Used by the demo login flow."""
+    from app.models.database import async_session_maker
+    from app.core.deps import _get_or_create_demo_user
+    from app.core.deps import create_access_token
 
-        async with async_session_maker() as db:
-            user = await _get_or_create_demo_user(db)
-            token = create_access_token(str(user.id), str(user.org_id))
-        return {"access_token": token, "token_type": "bearer", "note": "Dev token — do not use in production"}
+    async with async_session_maker() as db:
+        user = await _get_or_create_demo_user(db)
+        token = create_access_token(str(user.id), str(user.org_id))
+    return {"access_token": token, "token_type": "bearer"}
 
 
 # ── Health check ──────────────────────────────────────────────────────────────
