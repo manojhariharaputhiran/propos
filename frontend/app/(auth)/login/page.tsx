@@ -1,7 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
@@ -24,7 +24,7 @@ const MicrosoftIcon = () => (
   </svg>
 );
 
-export default function LoginPage() {
+function LoginForm() {
   const [loading, setLoading] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
@@ -130,5 +130,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
